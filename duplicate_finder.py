@@ -17,8 +17,12 @@ def md5(fname):
 
 
 def list_files_in_directory(dirr):
-    log(f'Working directory: {dirr}')
-    return [os.path.join(dirr, x) for x in os.listdir(dirr) if os.path.isfile(os.path.join(dirr, x))]
+    log(f"Working directory: {dirr}")
+    return [
+        os.path.join(dirr, x)
+        for x in os.listdir(dirr)
+        if os.path.isfile(os.path.join(dirr, x))
+    ]
 
 
 def calculate_sums(files):
