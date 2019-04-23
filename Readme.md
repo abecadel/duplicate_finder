@@ -1,4 +1,4 @@
 # Find duplicates
 
-- find_duplicates.py
+- find_duplicates_md5.py
 
