@@ -75,7 +75,7 @@ def remove_found_duplicates(duplicates):
         info(f"File deleted")
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dir", help="Directory to work on", type=str, required=True)
     parser.add_argument("--out", help="Output file", type=str, required=True)
@@ -86,3 +86,7 @@ if __name__ == "__main__":
 
     if args.delete is True:
         remove_found_duplicates(duplicates)
+
+
+if __name__ == "__main__":
+    main()
