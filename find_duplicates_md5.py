@@ -4,15 +4,16 @@ import hashlib
 import argparse
 from concurrent.futures import ThreadPoolExecutor as PoolExecutor
 import sys
+from typing import List, Tuple, Set
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
-def info(s):
+def info(s) -> None:
     logging.info(s)
 
 
-def md5(fname):
+def md5(fname) -> Tuple[str, bytes]:
     hash_md5 = hashlib.md5()
     with open(fname, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
@@ -20,7 +21,7 @@ def md5(fname):
     return (fname, hash_md5.digest())
 
 
-def list_files_in_directory(dirr):
+def list_files_in_directory(dirr) -> List[str]:
     info(f"Working directory: {dirr}")
     return [
         os.path.join(dirr, x)
@@ -29,8 +30,8 @@ def list_files_in_directory(dirr):
     ]
 
 
-def calculate_sums(files):
-    sums = list()
+def calculate_sums(files) -> List[Tuple[str, bytes]]:
+    sums = list()  # type: List[Tuple[str, bytes]]
     with PoolExecutor(max_workers=os.cpu_count()) as executor:
         for ret in executor.map(md5, files):
             info(f"Processed {len(sums)} out of {len(files)}")
@@ -38,8 +39,8 @@ def calculate_sums(files):
     return sums
 
 
-def find_duplicates(sums):
-    seen = set()
+def find_duplicates(sums) -> List[str]:
+    seen = set()  # type: Set[str]
     duplicates = list()
     for file, h in sums:
         if h not in seen:
@@ -51,31 +52,31 @@ def find_duplicates(sums):
     return duplicates
 
 
-def write_out(duplicates, out_file):
+def write_out(duplicates, out_file) -> None:
     with open(out_file, "w") as f:
         for file in duplicates:
             f.write(file + "\n")
 
 
-def find_duplicate_files(dirr):
+def find_duplicate_files(dirr) -> List[str]:
     all_files = list_files_in_directory(dirr)
     info(f"No of files found: {len(all_files)}")
     sums = calculate_sums(all_files)
     return find_duplicates(sums)
 
 
-def find_and_write_out_duplicate_files(duplicates, out):
+def find_and_write_out_duplicate_files(duplicates, out) -> None:
     write_out(duplicates, out)
 
 
-def remove_found_duplicates(duplicates):
+def remove_found_duplicates(duplicates) -> None:
     for f in duplicates:
         info(f"Removing duplicate file {f}")
         os.remove(f)
         info(f"File deleted")
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dir", help="Directory to work on", type=str, required=True)
     parser.add_argument("--out", help="Output file", type=str, required=True)
