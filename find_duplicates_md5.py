@@ -1,11 +1,15 @@
 import os
+import logging
 import hashlib
 import argparse
 from concurrent.futures import ThreadPoolExecutor as PoolExecutor
+import sys
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
-def log(s):
-    print(s)
+def info(s):
+    logging.info(s)
 
 
 def md5(fname):
@@ -17,7 +21,7 @@ def md5(fname):
 
 
 def list_files_in_directory(dirr):
-    log(f"Working directory: {dirr}")
+    info(f"Working directory: {dirr}")
     return [
         os.path.join(dirr, x)
         for x in os.listdir(dirr)
@@ -29,7 +33,7 @@ def calculate_sums(files):
     sums = list()
     with PoolExecutor(max_workers=os.cpu_count()) as executor:
         for ret in executor.map(md5, files):
-            log(f"Processed {len(sums)} out of  {len(files)}")
+            info(f"Processed {len(sums)} out of {len(files)}")
             sums.append(ret)
     return sums
 
@@ -43,7 +47,7 @@ def find_duplicates(sums):
         else:
             duplicates.append(file)
 
-    log(f"No of duplicates found: {len(duplicates)}")
+    info(f"No of duplicates found: {len(duplicates)}")
     return duplicates
 
 
@@ -55,27 +59,31 @@ def write_out(duplicates, out_file):
 
 def find_duplicate_files(dirr):
     all_files = list_files_in_directory(dirr)
-    log(f"No of files found: {len(all_files)}")
+    info(f"No of files found: {len(all_files)}")
     sums = calculate_sums(all_files)
     return find_duplicates(sums)
 
 
-def find_and_write_out_duplicate_files(dirr, out):
-    duplicates = find_duplicate_files(dirr)
+def find_and_write_out_duplicate_files(duplicates, out):
     write_out(duplicates, out)
 
 
-def remove_found_duplicates(dirr):
-    duplicates = find_duplicate_files(dirr)
+def remove_found_duplicates(duplicates):
     for f in duplicates:
-        log(f"Removing duplicate file {f}")
+        info(f"Removing duplicate file {f}")
         os.remove(f)
-        log(f"File deleted")
+        info(f"File deleted")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("dir", help="Directory to work on", type=str)
-    parser.add_argument("out", help="Output file", type=str)
+    parser.add_argument("--dir", help="Directory to work on", type=str, required=True)
+    parser.add_argument("--out", help="Output file", type=str, required=True)
+    parser.add_argument("--delete", action="store_true")
     args = parser.parse_args()
-    find_and_write_out_duplicate_files(args.dir, args.out)
+    info(args)
+    duplicates = find_duplicate_files(args.dir)
+    find_and_write_out_duplicate_files(duplicates, args.out)
+
+    if args.delete is True:
+        remove_found_duplicates(duplicates)
