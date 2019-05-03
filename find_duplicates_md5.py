@@ -42,6 +42,8 @@ def find_duplicates(sums):
             seen.add(h)
         else:
             duplicates.append(file)
+
+    log(f"No of duplicates found: {len(duplicates)}")
     return duplicates
 
 
@@ -61,6 +63,14 @@ def find_duplicate_files(dirr):
 def find_and_write_out_duplicate_files(dirr, out):
     duplicates = find_duplicate_files(dirr)
     write_out(duplicates, out)
+
+
+def remove_found_duplicates(dirr):
+    duplicates = find_duplicate_files(dirr)
+    for f in duplicates:
+        log(f"Removing duplicate file {f}")
+        os.remove(f)
+        log(f"File deleted")
 
 
 if __name__ == "__main__":
