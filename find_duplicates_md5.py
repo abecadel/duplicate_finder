@@ -81,7 +81,6 @@ if __name__ == "__main__":
     parser.add_argument("--out", help="Output file", type=str, required=True)
     parser.add_argument("--delete", action="store_true")
     args = parser.parse_args()
-    info(args)
     duplicates = find_duplicate_files(args.dir)
     find_and_write_out_duplicate_files(duplicates, args.out)
 
